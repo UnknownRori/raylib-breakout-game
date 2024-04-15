@@ -24,6 +24,6 @@ cmake --build ./build/
 
 # Generate and run Web build
 # I know you guys can use emscripten, there is the docs to install it
-emcmake -S . -B web-build -DPLATFORM=Web
-emcmake --build ./web-build
+emcmake cmake -S . -B web-build -DPLATFORM=Web
+cmake --build ./web-build
 ```
