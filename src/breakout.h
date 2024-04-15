@@ -58,10 +58,17 @@ typedef struct {
 
   int lives;
   state_t state;
+
 } game_t;
+
+typedef struct {
+  Sound hit;
+  Sound title_screen;
+} assets_t;
 
 void breakout_init();
 void breakout_update();
 void breakout_render();
+void breakout_deinit();
 
 #endif

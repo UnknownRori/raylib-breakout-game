@@ -26,4 +26,8 @@ cmake --build ./build/
 # I know you guys can use emscripten, there is the docs to install it
 emcmake cmake -S . -B web-build -DPLATFORM=Web
 cmake --build ./web-build
+
+# Or you guys are lazy
+make web # For web build  just make sure emscripten already in path and activated
+make desktop # For desktop build
 ```

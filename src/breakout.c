@@ -6,9 +6,21 @@
 #include "./breakout.h"
 #include "utils.h"
 
+static bool initialized = false;
+static bool title_screen_sound_played = false;
+static assets_t a;
 static game_t g;
 
+void breakout_deinit() {
+  UnloadSound(a.hit);
+  UnloadSound(a.title_screen);
+}
+
 void breakout_init() {
+  if (!initialized) {
+    a.hit = LoadSound("resources/hit.wav");
+    a.title_screen = LoadSound("resources/title_screen.wav");
+  }
   memset(&g, 0, sizeof(g));
 
   g = (game_t){.player = {.pos = {.x = 400, .y = 500}},
@@ -95,6 +107,11 @@ static void title_screen_template(const char *title) {
            32, BLACK);
   DrawText("PRESS SPACE TO CONTINUE", (800 / 2) - length / 2, 600 / 2 - 32 + 48,
            32, WHITE);
+
+  if (!title_screen_sound_played) {
+    title_screen_sound_played = true;
+    PlaySound(a.title_screen);
+  }
 }
 
 static void update_ball() {
@@ -107,6 +124,7 @@ static void update_ball() {
     g.ball.pos = BALL_DEFAULT_POS;
     g.ball.vel = Vector2Zero();
     g.lives -= 1;
+    PlaySound(a.title_screen);
   }
 
   Rectangle ball_rect = (Rectangle){
@@ -127,22 +145,26 @@ static void update_ball() {
   if (CheckCollisionRecs(player_rect, ball_rect) && g.ball.vel.y > 0) {
     g.ball.vel.y = -g.ball.vel.y * 2.5f;
     g.ball.vel.x = g.ball.vel.x + (g.player.vel.x * 12.0f);
+    PlaySound(a.hit);
   }
 
   if (g.ball.pos.y < 0 && g.ball.vel.y < 0) {
     float randomY = (float)GetRandomValue(1, 10) / 10.;
     g.ball.vel.y = -g.ball.vel.y * 0.8;
     g.ball.vel.x = g.ball.vel.x * 0.8 + randomY;
+    PlaySound(a.hit);
   }
 
   if (g.ball.pos.x < 0 && g.ball.vel.x < 0) {
     g.ball.vel.y = -g.ball.vel.y * 0.8;
     g.ball.vel.x = -g.ball.vel.x * 0.8;
+    PlaySound(a.hit);
   }
 
   if (g.ball.pos.x > 800 && g.ball.vel.x > 0) {
     g.ball.vel.y = g.ball.vel.y * 0.9;
     g.ball.vel.x = -g.ball.vel.x * 0.8;
+    PlaySound(a.hit);
   }
 
   for (int i = 0; i < ARR_LEN(g.blocks); i++) {
@@ -184,6 +206,8 @@ static void update_ball() {
               .y = -50,
           },
           g.ball.pos, 2.);
+
+      PlaySound(a.hit);
     }
   }
 
@@ -221,9 +245,22 @@ void breakout_update() {
     if (g.lives < 0) {
       g.state = LOSE;
     }
+
+    int destroyed = 0;
+    for (int i = 0; i < ARR_LEN(g.blocks); i++) {
+      if (!g.blocks[i].is_alive) {
+        destroyed += 1;
+      }
+    }
+
+    if (destroyed == ARR_LEN(g.blocks)) {
+      g.state = WIN;
+    }
+
     update_ball();
     particle_update();
     update_player();
+    title_screen_sound_played = false;
     break;
   }
 }
@@ -245,7 +282,7 @@ void breakout_render() {
               .x = g.particles[i].size.x / 2.f,
               .y = g.particles[i].size.y / 2.f,
           },
-          65.f * RAD2DEG, GRAY);
+          65.f * RAD2DEG, color);
     }
   }
 

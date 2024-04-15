@@ -42,6 +42,7 @@ int main() {
   // Initialization
   //--------------------------------------------------------------------------------------
   InitWindow(screenWidth, screenHeight, "Breakout game");
+  InitAudioDevice();
 
   // Initialize the breakout
   breakout_init();
@@ -58,6 +59,8 @@ int main() {
     UpdateDrawFrame();
   }
 #endif
+
+  breakout_deinit();
 
   // De-Initialization
   //--------------------------------------------------------------------------------------
