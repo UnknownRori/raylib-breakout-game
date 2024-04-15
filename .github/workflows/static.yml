@@ -32,17 +32,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Clone emscripten
-      run: git clone https://github.com/emscripten-core/emsdk.git
-
-    - name: Install latest emscripten
-      run: ./emsdk/emsdk install latest
-
-    - name: Install latest emscripten
-      run: ./emsdk/emsdk activate latest
+    - name: Setup emsdk
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        # Make sure to set a version number!
+        version: 1.38.40
+        # This is the name of the cache folder.
+        # The cache folder will be placed in the build directory,
+        #  so make sure it doesn't conflict with anything!
+        actions-cache-folder: 'emsdk-cache'
         
     - name: Configure CMake
-      run: source ./emsdk/emsdk_env.sh && ./emsdk/upstream/emscripten/emcmake -S . -B web-build -DPLATFORM=Web
+      run: emcmake -S . -B web-build -DPLATFORM=Web
 
     - name: Build
       # Build your program with the given configuration
