@@ -44,7 +44,7 @@ jobs:
       run: source ./emsdk/emsdk_env.sh
         
     - name: Configure CMake
-      run: ./emsdk/emcmake -S . -B web-build -DPLATFORM=Web
+      run: ./emsdk/upstream/emscripten/emcmake -S . -B web-build -DPLATFORM=Web
 
     - name: Build
       # Build your program with the given configuration
