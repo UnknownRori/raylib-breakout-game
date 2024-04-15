@@ -43,11 +43,11 @@ jobs:
         actions-cache-folder: 'emsdk-cache'
         
     - name: Configure CMake
-      run: emcmake -S . -B web-build -DPLATFORM=Web
+      run: emcmake -B web-build -DPLATFORM=Web
 
     - name: Build
       # Build your program with the given configuration
-      run: source ./emsdk/emsdk_env.sh && cmake --build ${{github.workspace}}/web-build
+      run: cmake --build ${{github.workspace}}/web-build
     - name: Setup Pages
       uses: actions/configure-pages@v5
     - name: Upload artifact
