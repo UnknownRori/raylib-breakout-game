@@ -43,7 +43,7 @@ jobs:
         actions-cache-folder: 'emsdk-cache'
         
     - name: Configure CMake
-      run: emcmake -B web-build -DPLATFORM=Web
+      run: emcmake cmake -S . -B web-build -DPLATFORM=Web
 
     - name: Build
       # Build your program with the given configuration
