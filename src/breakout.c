@@ -119,8 +119,10 @@ static void title_screen_template(const char *title) {
     char buffer[1024] = {0};
     snprintf(buffer, sizeof(buffer), "Your Score : %05u", g.score);
     length = MeasureText(buffer, 32);
-    DrawText(buffer, (800 / 2) - length / 2, 600 / 2 - 32 * 3 + 47, 32, BLACK);
-    DrawText(buffer, (800 / 2) - length / 2, 600 / 2 - 32 * 3 + 48, 32, WHITE);
+    DrawText(buffer, (800 / 2) - length / 2, 600 / 2 - 32 + 47 + 48 * 2, 32,
+             BLACK);
+    DrawText(buffer, (800 / 2) - length / 2, 600 / 2 - 32 + 48 + 48 * 2, 32,
+             WHITE);
   }
 
   if (!title_screen_sound_played) {
