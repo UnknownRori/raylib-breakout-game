@@ -44,8 +44,23 @@ jobs:
         #  so make sure it doesn't conflict with anything!
         actions-cache-folder: 'emsdk-cache'
         
-    - name: Build the web dist
-      run: make web
+    - name: Configure CMake
+      run: emcmake cmake -S . -B web-build -DPLATFORM=Web
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/web-build
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/web-build
+      
+    - name: Create dist folder
+      # Build your program with the given configuration
+      run: mkdir dist
+
+    - name: Copy the build output
+      # Build your program with the given configuration
+      run: cp ./web-build/breakout-game.html ./dist/index.html && cp ./web-build/breakout-game.js ./dist && cp ./web-build/breakout-game.data ./dist && cp ./web-build/breakout-game.wasm ./dist
 
     - name: Setup Pages
       uses: actions/configure-pages@v5
@@ -53,7 +68,7 @@ jobs:
       uses: actions/upload-pages-artifact@v3
       with:
         # Upload entire repository
-        path: './web-build'
+        path: './dist'
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
