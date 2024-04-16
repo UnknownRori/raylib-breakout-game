@@ -26,7 +26,14 @@ void breakout_init() {
   g = (game_t){.player = {.pos = {.x = 400, .y = 500}},
                .ball = {.pos = BALL_DEFAULT_POS, .vel = {.x = 0, .y = 0}},
                .state = PAUSED,
-               .lives = 5};
+               .lives = 5,
+               .shakeness = 0.f,
+               .camera = (Camera2D){
+                   .zoom = 1.f,
+                   .offset = 0.f,
+                   .target = {.x = 0, .y = 0},
+                   .rotation = 0.f,
+               }};
 
   int a = 0;
   for (int i = 0; i < 6; i++) {
@@ -108,6 +115,14 @@ static void title_screen_template(const char *title) {
   DrawText("PRESS SPACE TO CONTINUE", (800 / 2) - length / 2, 600 / 2 - 32 + 48,
            32, WHITE);
 
+  if (g.state != PAUSED) {
+    char buffer[1024] = {0};
+    snprintf(buffer, sizeof(buffer), "Your Score : %05u", g.score);
+    length = MeasureText(buffer, 32);
+    DrawText(buffer, (800 / 2) - length / 2, 600 / 2 - 32 * 3 + 47, 32, BLACK);
+    DrawText(buffer, (800 / 2) - length / 2, 600 / 2 - 32 * 3 + 48, 32, WHITE);
+  }
+
   if (!title_screen_sound_played) {
     title_screen_sound_played = true;
     PlaySound(a.title_screen);
@@ -145,6 +160,7 @@ static void update_ball() {
   if (CheckCollisionRecs(player_rect, ball_rect) && g.ball.vel.y > 0) {
     g.ball.vel.y = -g.ball.vel.y * 2.5f;
     g.ball.vel.x = g.ball.vel.x + (g.player.vel.x * 12.0f);
+    g.shakeness += CAMERA_SHAKE;
     PlaySound(a.hit);
   }
 
@@ -152,18 +168,21 @@ static void update_ball() {
     float randomY = (float)GetRandomValue(1, 10) / 10.;
     g.ball.vel.y = -g.ball.vel.y * 0.8;
     g.ball.vel.x = g.ball.vel.x * 0.8 + randomY;
+    g.shakeness += CAMERA_SHAKE;
     PlaySound(a.hit);
   }
 
   if (g.ball.pos.x < 0 && g.ball.vel.x < 0) {
     g.ball.vel.y = -g.ball.vel.y * 0.8;
     g.ball.vel.x = -g.ball.vel.x * 0.8;
+    g.shakeness += CAMERA_SHAKE;
     PlaySound(a.hit);
   }
 
   if (g.ball.pos.x > 800 && g.ball.vel.x > 0) {
     g.ball.vel.y = g.ball.vel.y * 0.9;
     g.ball.vel.x = -g.ball.vel.x * 0.8;
+    g.shakeness += CAMERA_SHAKE;
     PlaySound(a.hit);
   }
 
@@ -182,6 +201,8 @@ static void update_ball() {
       g.ball.vel.y = -g.ball.vel.y * 0.8;
       g.ball.vel.x = g.ball.vel.x * 0.8 * randomY;
       (*block).is_alive = false;
+      g.shakeness += CAMERA_SHAKE;
+      g.score += HIT_SCORE;
       particle_spawn(
           (Vector2){
               .x = 50,
@@ -222,6 +243,15 @@ static void update_ball() {
       Vector2Clamp(g.ball.vel, Vector2Negate(BALL_MAX_SPEED), BALL_MAX_SPEED);
 }
 
+static void camera_shake() {
+  g.camera.offset = (Vector2){
+      .x = GetRandomValue(-g.shakeness * 10, g.shakeness * 10) / 10.,
+      .y = GetRandomValue(-g.shakeness * 10, g.shakeness * 10) / 10.,
+  };
+  g.shakeness -= CAMERA_RECOVER;
+  g.shakeness = MAX(0.f, g.shakeness);
+}
+
 void breakout_update() {
   SetRandomSeed((unsigned int)GetTime()); // Hehe
   switch (g.state) {
@@ -257,6 +287,7 @@ void breakout_update() {
       g.state = WIN;
     }
 
+    camera_shake();
     update_ball();
     particle_update();
     update_player();
@@ -266,6 +297,7 @@ void breakout_update() {
 }
 
 void breakout_render() {
+  BeginMode2D(g.camera);
   for (int i = 0; i < ARR_LEN(g.particles); i++) {
     if (g.particles[i].active) {
       Color color = (Color){130, 130, 130,
@@ -297,12 +329,19 @@ void breakout_render() {
                     BLUE);
     }
   }
+  EndMode2D();
 
   DrawFPS(0, 0);
   char buffer[1024] = {0};
   snprintf(buffer, sizeof(buffer), "Live : %d", g.lives);
   int length = MeasureText(buffer, 24) + 20;
   DrawText(buffer, 800 - length, 0, 24, GREEN);
+
+  memset(buffer, 0, sizeof(buffer));
+  snprintf(buffer, sizeof(buffer), "%05u", g.score);
+  length = MeasureText(buffer, 24) + 20;
+  DrawText(buffer, 800 / 2.f - length / 2.f, 0, 24, GREEN);
+
   switch (g.state) {
   case WIN:
     title_screen_template("YOU WON!");

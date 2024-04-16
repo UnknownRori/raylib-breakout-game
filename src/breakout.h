@@ -17,6 +17,10 @@
 #define BLOCK_SIZE ((Vector2){.x = 90, .y = 25})
 #define BLOCK_SPACING 40
 
+#define HIT_SCORE 20
+#define CAMERA_SHAKE 2.f
+#define CAMERA_RECOVER 0.5
+
 typedef struct {
   Vector2 pos;
   bool is_alive;
@@ -58,6 +62,9 @@ typedef struct {
 
   int lives;
   state_t state;
+  unsigned int score;
+  Camera2D camera;
+  float shakeness;
 
 } game_t;
 
