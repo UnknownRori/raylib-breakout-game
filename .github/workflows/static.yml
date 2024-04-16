@@ -44,12 +44,9 @@ jobs:
         #  so make sure it doesn't conflict with anything!
         actions-cache-folder: 'emsdk-cache'
         
-    - name: Configure CMake
-      run: emcmake cmake -S . -B web-build -DPLATFORM=Web
+    - name: Build the web dist
+      run: make web
 
-    - name: Build
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/web-build
     - name: Setup Pages
       uses: actions/configure-pages@v5
     - name: Upload artifact
