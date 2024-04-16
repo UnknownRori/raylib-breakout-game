@@ -1,5 +1,7 @@
 # Raylib Breakout Game
 
+<img src="./screenshot/demo.png">
+
 A simple Raylib game example that uses git submodule to fetch raylib and uses cmake to build desktop, and web target
 
 ## Prerequisites
